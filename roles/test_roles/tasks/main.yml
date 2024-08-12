@@ -1,0 +1,6 @@
+---
+- name: Create folder for test purpose
+  file:
+    path: /tmp/chienlv
+    state: directory
+    mode: '0755'

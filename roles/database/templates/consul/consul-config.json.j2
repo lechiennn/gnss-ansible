@@ -1,0 +1,12 @@
+{
+  "server": true,
+  "node_name": "consul-{{ inventory_hostname | replace("_", "-") }}",
+  "data_dir": "/consul/data",
+  "bootstrap_expect": 2,
+  "client_addr": "0.0.0.0",
+  "bind_addr": "0.0.0.0",
+  "retry_join": [{% for host in groups['database'] %}"{{ hostvars[host].ansible_host }}"{{ ", " if not loop.last else "" }}{% endfor %}],
+  "ui_config": {
+    "enabled": true
+  }
+}

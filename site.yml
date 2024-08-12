@@ -1,0 +1,30 @@
+---
+- name: Setup environment
+  hosts: all
+  become: true
+  roles:
+    - common
+
+- hosts: kafka
+  gather_facts: false
+  tags: kafka
+  roles:
+    - kafka
+
+- hosts: server
+  gather_facts: false
+  tags: server
+  roles:
+    - server
+
+- hosts: database
+  gather_facts: false
+  roles:
+    - database
+    
+- hosts: all
+  gather_facts: false
+  tags: test
+  roles:
+    - test_roles
+

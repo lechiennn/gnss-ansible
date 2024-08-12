@@ -1,0 +1,61 @@
+
+# postgres
+database_postgres_workdir: "{{ app_base_dir }}/database/postgres"
+database_postgres_datadir: "{{ database_postgres_workdir }}/postgres-data"
+database_postgres_scope: postgres_cluster
+database_postgres_port: 8432
+database_patroni_restapi_port: 8008
+database_postgres_user:
+  superuser:
+    username: "postgres"
+    password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33306131366665346136346466363766336336346665363061623530376565316365666333623566
+          6339316535343732333635313464386162373564323537300a336638663139613961636462333561
+          33323664323039613838626665353338643434613464336464376335356336396134636264393438
+          6334343662376230360a626631663764633466313730376235666438613832393665623862643339
+          36323735343630316436376639383662613033643364393463636236383730613330
+  replicator:
+    username: "replicator"
+    password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          64343065346361366366326566303935356138303231373062663835633534353030353266616234
+          3335636135356566666632336464376133353462333866650a383339323361336439343163626539
+          30613464623563636237616261316665333163636436313533323364666466666235353565366639
+          3834333662306661300a303334623431303033336633663636306332313935393336633563623434
+          64326362323635346137396566313761393530333233633431333161386336393064
+  rewind:
+    username: "rewind"
+    password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          37346631356163313236373364623865393861363330623739613935306235653466636534313331
+          6233663837666135663637326433396634663664303364330a323730306662386661336632356434
+          62313637653265333439323035376362656566323631636437336537343835663239383365656139
+          3265666363306639320a356562663066303734656163306165363733383662313064393737643966
+          3434
+
+# database_postgres_image: nguyenhiep201/postgres-13.6-patroni-3.1.0:1.0.0
+# database_postgres_image: lechiennn/patroni-v3.3.1-timescaledb:latest-pg13
+database_postgres_image: lechiennn/patroni-v3.1.0-postgres:11-bullseye
+database_postgres_exporter_image: prometheuscommunity/postgres-exporter
+database_postgres_exporter_port: 9187
+
+# consul
+database_consul_image: hashicorp/consul:1.19.0
+database_consul_workdir: "{{ app_base_dir }}/database/consul"
+database_consul_datadir: "{{ database_consul_workdir }}/data"
+
+# etcd
+database_etcd_workdir: "{{ app_base_dir }}/database/etcd"
+database_etcd_image: bitnami/etcd:3.5.15
+database_etcd_listen_peer_port: 2380
+database_etcd_listen_client_port: 2379
+database_etcd_allow_none_authentication: yes
+database_etcd_listen_peer_urls: http://0.0.0.0:{{ database_etcd_listen_peer_port }}
+database_etcd_listen_client_urls: http://0.0.0.0:{{ database_etcd_listen_client_port }}
+database_etcd_initial_advertise_peer_urls: http://{{ ansible_host }}:{{ database_etcd_listen_peer_port }}
+database_etcd_advertise_client_urls: http://{{ ansible_host }}:{{ database_etcd_listen_client_port }}
+database_etcd_initial_cluster_token: database-etcd
+database_etcd_initial_cluster_state: new
+database_etcd_enable_v2: true
+database_etcd_data_dir: /etcd-data

@@ -1,0 +1,21 @@
+---
+- name: Ensuring app folder is exist
+  file:
+    path: /root/server
+    state: directory
+    mode: '0755'
+
+- name: Copy docker compose to app workdir
+  template:
+    src: docker-compose.yml.j2
+    dest: /root/server/docker-compose.yml
+
+- name: Copy env to app workdir
+  template:
+    src: backend.env.j2
+    dest: /root/server/backend.env
+
+- name: Running server
+  community.docker.docker_compose_v2:
+    project_src: /root/server
+    state: present

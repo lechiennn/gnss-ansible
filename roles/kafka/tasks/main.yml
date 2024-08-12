@@ -1,0 +1,16 @@
+---
+- name: Ensuring kafka workdir is exist
+  file:
+    path: "{{ kafka_workdir }}"
+    state: directory
+    mode: '0755'
+
+- name: Copy docker compose to kafka workdir
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ kafka_workdir }}/docker-compose.yml"
+
+- name: Running zookeeper, kafka
+  community.docker.docker_compose_v2:
+    project_src: "{{ kafka_workdir }}"
+    state: present

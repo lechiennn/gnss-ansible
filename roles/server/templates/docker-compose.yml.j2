@@ -1,0 +1,36 @@
+version: '3.3'
+
+services:
+  db:
+    image: mariadb
+    volumes:
+      - mariadb-volume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: {{ mysql_root_password }}
+      MYSQL_DATABASE: {{ mysql_database }}
+      MYSQL_USER: {{ mysql_user }}
+      MYSQL_PASSWORD: {{ mysql_password }}
+    ports:
+      - "3306:3306"
+
+  server:
+    image: lechiennn/gnss-backend:0.1.0
+    env_file: 'backend.env'
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+
+  worker:
+    image: lechiennn/gnss-backend:0.1.0
+    env_file: 'backend.env'
+    ports:
+      - 8001:8000
+    command: ["python", "manage.py", "consume_kafka"]
+    depends_on:
+      - db
+      - server
+
+
+volumes:
+  mariadb-volume:

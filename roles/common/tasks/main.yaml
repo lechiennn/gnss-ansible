@@ -1,0 +1,5 @@
+- name: Create {{ app_user }} user
+  import_tasks: user.yaml
+  tags:
+    - common
+    - user

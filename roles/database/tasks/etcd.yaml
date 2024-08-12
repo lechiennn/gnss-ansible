@@ -1,0 +1,31 @@
+---
+- name: Ensuring etcd folder is exist
+  file:
+    path: "{{ database_etcd_workdir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy docker compose to etcd workdir
+  template:
+    src: etcd/docker-compose.yml.j2
+    dest: "{{ database_etcd_workdir }}/docker-compose.yml"
+    owner: "{{ ansible_user }}"
+
+- name: Running etcd
+  community.docker.docker_compose_v2:
+    project_src: "{{ database_etcd_workdir }}"
+    state: present
+
+- name: Wait until etcd cluster is healthy
+  command: docker exec -it etcd etcdctl endpoint health --endpoints=http://{{ ansible_host}}:2379
+  register: etcd_health_result
+  until: "'is healthy' in etcd_health_result.stdout"
+  retries: 10
+  delay: 3
+  changed_when: false
+
+- name: Etcd cluster health
+  debug:
+    var: etcd_health_result.stdout
+    

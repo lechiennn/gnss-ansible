@@ -1,0 +1,23 @@
+services:
+    postgres:
+        image: {{ database_postgres_image }}
+        container_name: postgres
+        #shm_size: '2gb'
+        restart: always
+        volumes:
+            - {{ database_postgres_datadir }}:{{ database_postgres_datadir }}
+            - ./patroni-config.yml:/var/lib/postgresql/patroni-config.yml
+        network_mode: host
+        environment:
+            - TZ=Asia/Ho_Chi_Minh
+            - PG_UNIX_DIR={{ database_postgres_datadir }}
+        
+    postgres-exporter:
+        image: {{ database_postgres_exporter_image }}
+        container_name: postgres_exporter
+        restart: always
+        ports: 
+            - {{ database_postgres_exporter_port }}:9187
+        environment:
+            - DATA_SOURCE_NAME=postgresql://{{ database_postgres_user.superuser.username }}:{{ database_postgres_user.superuser.password }}@{{ ansible_host }}:{{ database_postgres_port }}/postgres?sslmode=disable
+            

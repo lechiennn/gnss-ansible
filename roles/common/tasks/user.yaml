@@ -1,0 +1,16 @@
+---
+- name: Create docker group
+  group:
+    name: docker
+    state: present
+  
+- name: Create {{ app_user }} user
+  user:
+    name: "{{ app_user }}"
+    shell: /bin/bash
+    state: present
+    groups:
+      - docker
+    append: yes
+    update_password: always
+    password: "{{ app_user_password }}"

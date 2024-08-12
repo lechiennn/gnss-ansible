@@ -1,0 +1,27 @@
+volumes:
+    etcd_db:
+        driver: local
+
+services:
+    etcd:
+        image: {{ database_etcd_image }}
+        container_name: etcd
+        restart: always
+        environment:
+            - ALLOW_NONE_AUTHENTICATION={{ database_etcd_allow_none_authentication }}
+            - ETCD_NAME={{ inventory_hostname }}
+            - ETCD_INITIAL_ADVERTISE_PEER_URLS={{ database_etcd_initial_advertise_peer_urls }}
+            - ETCD_LISTEN_PEER_URLS={{ database_etcd_listen_peer_urls }}
+            - ETCD_LISTEN_CLIENT_URLS={{ database_etcd_listen_client_urls }}
+            - ETCD_ADVERTISE_CLIENT_URLS={{ database_etcd_advertise_client_urls }}
+            - ETCD_INITIAL_CLUSTER_TOKEN={{ database_etcd_initial_cluster_token }}
+            - ETCD_INITIAL_CLUSTER={% for host in groups['database'] %}{{ hostvars[host].inventory_hostname }}=http://{{ hostvars[host].ansible_host }}:{{ database_etcd_listen_peer_port }}{{ "," if not loop.last else "\n" }}{% endfor %}
+            - ETCD_INITIAL_CLUSTER_STATE={{ database_etcd_initial_cluster_state }}
+            - ETCD_ENABLE_V2={{ database_etcd_enable_v2 }}
+            - ETCD_DATA_DIR={{ database_etcd_data_dir }}
+        ports:
+            - {{ database_etcd_listen_peer_port }}:{{ database_etcd_listen_peer_port }}
+            - {{ database_etcd_listen_client_port }}:{{ database_etcd_listen_client_port }}
+        volumes:
+            - etcd_db:/etcd-data:rw
+            

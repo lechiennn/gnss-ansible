@@ -1,0 +1,74 @@
+---
+- name: Stop old compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ database_postgres_workdir }}"
+    state: absent
+
+- name: Ensuring postgres folder is exist
+  file:
+    path: "{{ database_postgres_workdir }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    state: directory
+    mode: 0775
+
+- name: Ensuring directory {{ database_postgres_datadir }} folder exists
+  file:
+    path: "{{ database_postgres_datadir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: directory
+    mode: 0775
+
+- name: Ensuring data directories in {{ database_postgres_datadir }} exists
+  file:
+    path: "{{ database_postgres_datadir }}/{{ item.path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: directory
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "logs", mode: "0775" }
+    - { path: "data", mode: "0750" }
+
+- name: Copy patroni config to postgres workdir
+  template:
+    src: postgres/patroni-config.yml.j2
+    dest: "{{ database_postgres_workdir }}/patroni-config.yml"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: 0644
+
+- name: Copy docker compose to postgres workdir
+  template:
+    src: postgres/docker-compose.yml.j2
+    dest: "{{ database_postgres_workdir }}/docker-compose.yml"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: 0644
+
+- name: Running postgres 
+  community.docker.docker_compose_v2:
+    project_src: "{{ database_postgres_workdir }}"
+    state: present
+
+- name: Ensuring postgres is started and accepting connection
+  community.docker.docker_container_exec:
+    container: postgres
+    command: pg_isready -h {{ ansible_host}} -p {{ database_postgres_port }}
+  register: pg_isready_result
+  until: pg_isready_result.rc == 0
+  retries: 5
+  delay: 3
+  changed_when: false
+
+# - name: Change permission log db when postgres is started
+#   file:
+#     path: "{{ database_postgres_datadir }}/{{ item.path }}"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#     state: directory
+#     mode: "{{ item.mode }}"
+#   loop:
+#     - { path: "logs/patroni.log", mode: "0605" }
+#     - { path: "logs/postgres.log", mode: "0605" }

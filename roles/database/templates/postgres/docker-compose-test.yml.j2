@@ -1,0 +1,30 @@
+services:
+    postgres:
+        image: {{ database_postgres_image }}
+        container_name: postgres
+        #shm_size: '2gb'
+        restart: always
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=SuperUserPassword
+            - POSTGRES_DB=postgres
+        
+    patroni:
+        image: ongres/patroni:v3.3.2-pg16.3-hash-44a215e1cae46c728cb7d22808d3ae38-linux-amd64
+        container_name: patroni
+        volumes:
+            - ./patroni-config.yml:/etc/patroni/patroni.yml
+        depends_on:
+            - postgres
+        network_mode: host
+        command: ["patroni", "/etc/patroni/patroni.yml"]
+
+    postgres-exporter:
+        image: {{ database_postgres_exporter_image }}
+        container_name: postgres_exporter
+        restart: always
+        ports: 
+            - {{ database_postgres_exporter_port }}:9187
+        environment:
+            - DATA_SOURCE_NAME=postgresql://{{ database_postgres_user.superuser.username }}:{{ database_postgres_user.superuser.password }}@{{ ansible_host }}:{{ database_postgres_port }}/postgres?sslmode=disable
+            

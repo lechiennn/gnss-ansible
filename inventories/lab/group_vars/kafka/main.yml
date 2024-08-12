@@ -1,0 +1,2 @@
+kafka_workdir: /root/kafka
+# TODO: limit kafka expose ip
