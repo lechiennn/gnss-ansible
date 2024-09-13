@@ -1,9 +1,4 @@
 ---
-- name: Stop old compose
-  community.docker.docker_compose_v2:
-    project_src: "{{ database_postgres_workdir }}"
-    state: absent
-
 - name: Ensuring postgres folder is exist
   file:
     path: "{{ database_postgres_workdir }}"

@@ -18,4 +18,24 @@
   tags:
     - database_postgres
     - database
-    
+
+- name: Deploy pgbouncer
+  import_tasks: pgbouncer.yml
+  become: yes
+  tags:
+    - database_pgbouncer
+    - database
+
+- name: Deploy haproxy
+  import_tasks: haproxy.yml
+  become: yes
+  tags:
+    - database_haproxy
+    - database
+
+- name: Deploy keepalived
+  import_tasks: keepalived.yml
+  become: yes
+  tags:
+    - database_keepalived
+    - database

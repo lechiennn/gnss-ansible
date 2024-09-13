@@ -1,0 +1,36 @@
+global_defs {
+    script_user root
+}
+
+vrrp_script chk_haproxy {
+    script "bash /check_alive_haproxy.sh"
+    interval 2
+    fall 2
+    rise 10
+}
+
+vrrp_instance VI_1 {
+    {% if groups['database'].index(inventory_hostname) == 0 %}
+    state MASTER
+    priority 100
+    {% else %}
+    state BACKUP
+    priority 98
+    {% endif %}
+    interface {{ keepalived.interface }}
+    unicast_src_ip {{ keepalived.interface_address }}
+    unicast_peer {
+        {% for host in groups['database'] | difference([inventory_hostname]) %}
+        {{ hostvars[host].keepalived.interface_address }}
+        {% endfor %}
+    }
+    virtual_ipaddress {
+        {{ database_keepalived_vip_address }} dev {{ keepalived.interface }}
+    }
+    virtual_router_id {{ keepalived.virtual_router_id }}
+    advert_int {{ keepalived.advert_int }}
+    track_script {
+        chk_haproxy
+    }
+    notify "/container/service/keepalived/assets/notify.sh"
+}

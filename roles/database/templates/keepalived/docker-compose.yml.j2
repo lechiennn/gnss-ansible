@@ -1,0 +1,26 @@
+volumes:
+    haproxy_sock:
+        external: true
+
+services:
+    keepalived:
+        image: {{ database_keepalived_image }}
+        container_name: keepalived
+        restart: always
+        cap_add:
+            - NET_ADMIN
+            - NET_BROADCAST
+            - NET_RAW
+        volumes:
+            - ./keepalived.conf:/container/service/keepalived/assets/keepalived.conf:ro
+            - haproxy_sock:/var/lib/haproxy/:ro
+            - ./check_alive_haproxy.sh:/check_alive_haproxy.sh
+        network_mode: host
+        command:
+            - "--copy-service"
+            - "--loglevel"
+            - "debug"
+        environment:
+            KEEPALIVED_COMMAND_LINE_ARGUMENTS: >-
+                --log-detail
+                --log-console

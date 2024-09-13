@@ -15,15 +15,15 @@ database_postgres_user:
           33323664323039613838626665353338643434613464336464376335356336396134636264393438
           6334343662376230360a626631663764633466313730376235666438613832393665623862643339
           36323735343630316436376639383662613033643364393463636236383730613330
-  replicator:
+  replication:
     username: "replicator"
     password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
-          64343065346361366366326566303935356138303231373062663835633534353030353266616234
-          3335636135356566666632336464376133353462333866650a383339323361336439343163626539
-          30613464623563636237616261316665333163636436313533323364666466666235353565366639
-          3834333662306661300a303334623431303033336633663636306332313935393336633563623434
-          64326362323635346137396566313761393530333233633431333161386336393064
+          38366638343732626335643365396632326664396564336339343933393365653631393839373437
+          6235613466623433336131353730653266346263333237380a386166656638336430363061616130
+          34376436323637346539653739393233613636333164633130623664613361626532646139663630
+          3862323333323735310a643764386661373431666633366530636236346366303137346130646662
+          61396461613162393837663739623265353564396165663338313934366636613366
   rewind:
     username: "rewind"
     password: !vault |
@@ -34,9 +34,9 @@ database_postgres_user:
           3265666363306639320a356562663066303734656163306165363733383662313064393737643966
           3434
 
-# database_postgres_image: nguyenhiep201/postgres-13.6-patroni-3.1.0:1.0.0
+database_postgres_image: nguyenhiep201/postgres-13.6-patroni-3.1.0:1.0.0
 # database_postgres_image: lechiennn/patroni-v3.3.1-timescaledb:latest-pg13
-database_postgres_image: lechiennn/patroni-v3.1.0-postgres:11-bullseye
+# database_postgres_image: lechiennn/patroni-v3.1.0-postgres:11-bullseye
 database_postgres_exporter_image: prometheuscommunity/postgres-exporter
 database_postgres_exporter_port: 9187
 
@@ -59,3 +59,52 @@ database_etcd_initial_cluster_token: database-etcd
 database_etcd_initial_cluster_state: new
 database_etcd_enable_v2: true
 database_etcd_data_dir: /etcd-data
+
+# pgbouncer
+database_pgbouncer_workdir: "{{ app_base_dir }}/database/pgbouncer"
+database_pgbouncer_port: 6432
+database_pgbouncer_image: brainsam/pgbouncer:latest
+database_pgbouncer_auth_type: "md5"
+database_pgbouncer_auth_file: "/pgbouncer/users.txt"
+database_pgbouncer_exporter_image: spreaker/prometheus-pgbouncer-exporter:latest
+database_pgbouncer_exporter_port: 9127
+database_pgbouncer_pool_mode: "transaction"
+database_pgbouncer_max_client_conn: 1000
+database_pgbouncer_listen_addr: "0.0.0.0"
+database_pgbouncer_admin_users: "postgres"
+database_pgbouncer_default_pool_size: 30
+database_pgbouncer_postgres_pools:
+  - name: "postgres"
+    dbname: "postgres"
+    password_md5: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          32653463303239343264343734333336613938626438613163633861396235343435613265643235
+          3263646538653665353833353633663837376637366261330a663037333334396161386166336537
+          30313766313039346632633834663437383033396362326133303963336263353934353661656361
+          3332643134623661310a393437313736306538666432633534363536616130623866326138626237
+          64333937663263393666666436626533613866363737616434653834383638326164376232316330
+          3961393439623935343234656137363164666136336163666365
+database_pgbouncer_exporter_include_databases:
+  - name: postgres
+
+# haproxy
+database_haproxy_workdir: "{{ app_base_dir }}/database/haproxy"
+database_haproxy_image: haproxy:2.0.7
+database_haproxy_exporter_image: prom/haproxy-exporter
+database_haproxy_listen_port:
+  stats: 9000
+  postgres: 5432
+  pgbouncer: 5433
+database_haproxy_exporter_port: 9101
+
+
+# keepalived
+# database_keepalived_image: keepalived:2.0.20
+# https://github.com/osixia/docker-keepalived
+database_keepalived_image: osixia/keepalived:stable
+database_keepalived_workdir: "{{ app_base_dir }}/database/keepalived"
+database_keepalived_vip_address: 100.99.98.97
+
+# database_confd_image: dcim-confd:1.0
+# database_confd_image: dockage/confd:alpine3.6
+database_confd_image: lechiennn/confd:1.0

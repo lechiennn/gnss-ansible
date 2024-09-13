@@ -1,0 +1,11 @@
+exporter_host: 0.0.0.0
+ : {{ database_pgbouncer_exporter_port | default(9127) }}
+pgbouncers:
+    - dsn: postgresql://{{ database_postgres_user.superuser.username }}:{{ database_postgres_user.superuser.password }}@pgbouncer:{{ database_pgbouncer_port }}/pgbouncer
+      connect_timeout: 5
+      include_databases:
+{% for db in database_pgbouncer_exporter_include_databases %}
+          - {{ db.name }}
+{% endfor %}
+      extra_labels:
+          pool_id: 1

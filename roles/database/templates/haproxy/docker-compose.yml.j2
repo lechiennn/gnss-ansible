@@ -1,0 +1,42 @@
+volumes:
+    app_config:
+        driver: local
+    haproxy_sock:
+        name: haproxy_sock
+        driver: local
+
+services:
+    confd:
+        image: {{ database_confd_image }}
+        container_name: confd
+        restart: always
+        volumes:
+            - ./confd/:/etc/confd/
+            - /var/run/docker.sock:/var/run/docker.sock
+            - app_config:/confd/app_config/
+        entrypoint: "confd"
+        environment:
+            - TZ=Asia/Ho_Chi_Minh
+        depends_on:
+            - haproxy
+    
+    haproxy:
+        image: {{ database_haproxy_image }}
+        container_name: haproxy
+        restart: always
+        volumes:
+            - app_config:/usr/local/etc/haproxy:ro
+            - haproxy_sock:/var/lib/haproxy/:rw
+        ports:
+            - {{ database_haproxy_listen_port.stats }}:{{ database_haproxy_listen_port.stats }}
+            - {{ database_haproxy_listen_port.postgres }}:{{ database_haproxy_listen_port.postgres }}
+            - {{ database_haproxy_listen_port.pgbouncer }}:{{ database_haproxy_listen_port.pgbouncer }}
+    
+    haproxy-exporter:
+        image: {{ database_haproxy_exporter_image }}
+        container_name: haproxy_exporter
+        restart: always
+        ports:
+            - {{ database_haproxy_exporter_port }}:{{ database_haproxy_exporter_port }}
+        command:
+            - '--haproxy.scrape-uri=http://haproxy:{{ database_haproxy_listen_port.stats }}/haproxy?stats;csv'

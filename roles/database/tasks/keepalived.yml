@@ -1,0 +1,46 @@
+---
+- name: Ensuring directory {{ database_keepalived_workdir }} exists
+  file:
+    path: "{{ database_keepalived_workdir }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    state: directory
+
+- name: Copy keepalived config to workdir
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ database_keepalived_workdir }}/{{ item.dest }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    backup: "{{ backup_env_files|default('false') }}"
+  loop:
+    - { src: 'keepalived/keepalived.conf.test.j2', dest: 'keepalived.conf' }
+
+- name: Copy file script check haproxy
+  template:
+    src: "keepalived/check_alive_haproxy.sh"
+    dest: "{{ database_keepalived_workdir }}/check_alive_haproxy.sh"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: 0755
+
+- name: Copy docker compose file
+  template:
+    src: keepalived/docker-compose.yml.j2
+    dest: "{{ database_keepalived_workdir }}/docker-compose.yml"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+
+- name: Running keepalived
+  community.docker.docker_compose_v2:
+    project_src: "{{ database_keepalived_workdir }}"
+    state: present
+
+- name: Wait for vip address
+  wait_for:
+    host: "{{ database_keepalived_vip_address }}"
+    port: 9101
+    state: started
+    timeout: 60
+    delay: 5
+    

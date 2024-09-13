@@ -1,0 +1,35 @@
+{% raw %}
+{{ $postgres_leader := split (getv "/service/postgres_cluster/leader") "-" }}
+{% endraw %}
+
+global
+    maxconn 1000
+    stats socket /var/lib/haproxy/haproxy.sock mode 660 level admin
+
+defaults
+    log global
+    mode tcp
+    retries 2
+    timeout client 30m
+    timeout connect 4s
+    timeout server 30m
+    timeout check 5s
+    balance roundrobin
+
+listen stats
+    mode http
+    bind *:{{ database_haproxy_listen_port.stats }}
+    stats enable
+    stats uri /
+
+listen postgres
+    bind *:{{ database_haproxy_listen_port.postgres }}
+    default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions
+    server {% raw %}pgbouncer_{{ index $postgres_leader 1 }} {{ index $postgres_leader 1 }}{% endraw %}:{{ database_postgres_port }}
+
+listen postgrespgbouncer
+    bind *:{{ database_haproxy_listen_port.pgbouncer }}
+    default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions
+{% for host in groups['database'] %}
+    server pgbouncer_{{ loop.index }} {{ hostvars[host].ansible_host }}:{{ database_pgbouncer_port }} check inter 2000 fall 5 rise 2
+{% endfor %}

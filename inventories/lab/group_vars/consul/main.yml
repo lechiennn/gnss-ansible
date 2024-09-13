@@ -1,0 +1,35 @@
+database_consul_client_image: consul:1.15
+database_consul_client_workdir: "{{ app_base_dir }}/consul"
+database_consul_client_data_dir: "/consul/data"
+database_consul_client_datacenter:
+database_consul_client_domain:
+database_consul_client_ui_config:
+  enabled: true
+database_consul_client_log_level:
+database_consul_client_server:
+database_consul_client_recursors:
+database_consul_client_rejoin_after_leave:
+database_consul_client_disable_update_check:
+
+
+###
+database_consul_image: consul:1.15
+database_consul_workdir: "{{ app_base_dir }}/consul"
+database_consul_data_dir: "/consul/data"
+database_consul_datacenter: 
+database_consul_domain:
+database_consul_ui_config:
+  enabled: true
+database_consul_log_level:
+database_consul_enable_debug:
+database_consul_server:
+database_consul_bootstrap_expect:
+database_consul_leave_on_terminate:
+database_consul_skip_leave_on_interrupt:
+database_consul_rejoin_after_leave:
+database_consul_disable_update_check:
+database_consul_performance:
+  raft_multiplier:
+database_consul_recursors:
+database_consul_ports:
+  dns:

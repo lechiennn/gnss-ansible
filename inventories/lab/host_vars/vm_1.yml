@@ -1,0 +1,5 @@
+keepalived:
+  interface: tailscale0
+  interface_address: 100.126.64.51
+  virtual_router_id: 70
+  advert_int: 1

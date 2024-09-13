@@ -1,0 +1,39 @@
+volumes:
+    app_config:
+        driver: local
+
+services:
+    confd_pgbouncer:
+        image: {{ database_confd_image }}
+        container_name: confd_pgbouncer
+        restart: always
+        volumes:
+            - ./confd/:/etc/confd/
+            - /var/run/docker.sock:/var/run/docker.sock
+            - app_config:/confd/app_config/
+        entrypoint: "confd"
+        environment:
+            - TZ=Asia/Ho_Chi_Minh
+        depends_on:
+            - pgbouncer
+    
+    pgbouncer:
+        image: {{ database_pgbouncer_image }}
+        container_name: pgbouncer
+        restart: always
+        volumes:
+            - ./users.txt:{{ database_pgbouncer_auth_file }}
+            - app_config:/etc/pgbouncer/
+        ports:
+            - {{ database_pgbouncer_port }}:{{ database_pgbouncer_port }}
+        environment:
+            - TZ=Asia/Ho_Chi_Minh
+    
+    pgbouncer-exporter:
+        image: {{ database_pgbouncer_exporter_image }}
+        container_name: pgbouncer_exporter
+        restart: always
+        volumes:
+            - "{{ database_pgbouncer_workdir }}/pgbouncer-exporter/config.yml:/etc/pgbouncer-exporter/config.yml"
+        ports:
+            - {{ database_pgbouncer_exporter_port }}:{{ database_pgbouncer_exporter_port }}

@@ -1,0 +1,52 @@
+---
+- name: Ensuring directory {{ database_pgbouncer_workdir }} exists
+  file:
+    path: "{{ database_pgbouncer_workdir }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    state: directory
+
+- name: Ensuring config directories exist
+  file:
+    path: "{{ database_pgbouncer_workdir }}/{{ item }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    state: directory
+  loop:
+    - confd/conf.d
+    - confd/templates
+    - pgbouncer-exporter
+
+- name: Copy pgbouncer config to workdir
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ database_pgbouncer_workdir }}/{{ item.dest }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+  loop:
+    - { src: 'pgbouncer/pgbouncer_confd_template.toml.j2', dest: 'confd/conf.d/confd_template.toml' }
+    - { src: 'confd/confd.toml.j2', dest: 'confd/confd.toml' }
+    - { src: 'pgbouncer/config.yml.j2', dest: 'pgbouncer-exporter/config.yml' }
+    - { src: 'pgbouncer/users.txt.j2', dest: 'users.txt' }
+    - { src: 'pgbouncer/pgbouncer.conf.tmpl.j2', dest: 'confd/templates/pgbouncer.conf.tmpl' }
+
+- name: Copy docker compose file
+  template:
+    src: pgbouncer/docker-compose.yml.j2
+    dest: "{{ database_pgbouncer_workdir }}/docker-compose.yml"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+
+- name: Running pgbouncer
+  community.docker.docker_compose_v2:
+    project_src: "{{ database_pgbouncer_workdir }}"
+    state: present
+
+- name: Ensure pgbouncer is started
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ database_pgbouncer_port }}"
+    state: started
+    timeout: 60
+    delay: 5
+    

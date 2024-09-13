@@ -19,9 +19,10 @@ services:
             - ETCD_INITIAL_CLUSTER_STATE={{ database_etcd_initial_cluster_state }}
             - ETCD_ENABLE_V2={{ database_etcd_enable_v2 }}
             - ETCD_DATA_DIR={{ database_etcd_data_dir }}
-        ports:
-            - {{ database_etcd_listen_peer_port }}:{{ database_etcd_listen_peer_port }}
-            - {{ database_etcd_listen_client_port }}:{{ database_etcd_listen_client_port }}
+        network_mode: host
+        #ports:
+        #    - {{ database_etcd_listen_peer_port }}:{{ database_etcd_listen_peer_port }}
+        #    - {{ database_etcd_listen_client_port }}:{{ database_etcd_listen_client_port }}
         volumes:
             - etcd_db:/etcd-data:rw
             

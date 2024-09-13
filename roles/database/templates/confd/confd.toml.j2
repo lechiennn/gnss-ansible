@@ -1,0 +1,8 @@
+backend="etcd"
+log-level="info"
+nodes=[
+{% for host in groups['database'] %}
+    "http://{{ hostvars[host].ansible_host }}:{{ database_etcd_listen_client_port }}"{{ "," if not loop.last else "" }}
+{% endfor %}
+]
+watch=true

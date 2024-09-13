@@ -1,0 +1,17 @@
+[databases]
+{% raw %}
+{{ $postgres_leader := split (getv "/service/postgres_cluster/leader") "-" }}
+{% endraw %}
+{% for pool in database_pgbouncer_postgres_pools %}
+{{ pool.name }}=host={% raw %}{{ index $postgres_leader 1 }}{% endraw %} port={{ database_postgres_port }} dbname={{ pool.dbname }}
+{% endfor %}
+
+[pgbouncer]
+pool_mode={{ database_pgbouncer_pool_mode | default('transaction') }}
+max_client_conn={{ database_pgbouncer_max_client_conn | default(1000) }}
+listen_port={{ database_pgbouncer_port | default(6432) }}
+listen_addr={{ database_pgbouncer_listen_addr | default('0.0.0.0') }}
+auth_type={{ database_pgbouncer_auth_type | default('md5') }}
+auth_file={{ database_pgbouncer_auth_file | default('/pgbouncer/users.txt') }}
+admin_users={{ database_pgbouncer_admin_users | default('postgres') }}
+default_pool_size={{ database_pgbouncer_default_pool_size | default(30) }}
