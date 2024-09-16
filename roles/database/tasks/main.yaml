@@ -5,13 +5,6 @@
     - database_etcd
     - database
 
-# - name: Deploy consul
-#   import_tasks: consul.yaml
-#   become: yes
-#   tags:
-#     - database_consul
-#     - database
-
 - name: Deploy postgres
   import_tasks: postgres.yaml
   become: yes
