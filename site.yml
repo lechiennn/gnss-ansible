@@ -7,6 +7,7 @@
 
 - hosts: kafka
   gather_facts: false
+  become: true
   tags: kafka
   roles:
     - kafka
@@ -21,7 +22,13 @@
   gather_facts: false
   roles:
     - database
-    
+
+- hosts: monitoring
+  gather_facts: false
+  become: true
+  roles:
+    - monitoring
+
 - hosts: all
   gather_facts: false
   tags: test

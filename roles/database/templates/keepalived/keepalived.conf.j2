@@ -10,19 +10,19 @@ vrrp_script chk_haproxy {
 }
 
 vrrp_instance VI_1 {
-    {% if groups['database'].index(inventory_hostname) == 0 %}
+{% if groups['database'].index(inventory_hostname) == 0 %}
     state MASTER
     priority 100
-    {% else %}
+{% else %}
     state BACKUP
     priority 98
-    {% endif %}
+{% endif %}
     interface {{ keepalived.interface }}
     unicast_src_ip {{ keepalived.interface_address }}
     unicast_peer {
-        {% for host in groups['database'] | difference([inventory_hostname]) %}
+{% for host in groups['database'] | difference([inventory_hostname]) %}
         {{ hostvars[host].keepalived.interface_address }}
-        {% endfor %}
+{% endfor %}
     }
     virtual_ipaddress {
         {{ database_keepalived_vip_address }} dev {{ keepalived.interface }}

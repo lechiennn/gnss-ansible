@@ -38,12 +38,6 @@ database_postgres_image: nguyenhiep201/postgres-13.6-patroni-3.1.0:1.0.0
 # database_postgres_image: lechiennn/patroni-v3.3.1-timescaledb:latest-pg13
 # database_postgres_image: lechiennn/patroni-v3.1.0-postgres:11-bullseye
 database_postgres_exporter_image: prometheuscommunity/postgres-exporter
-database_postgres_exporter_port: 9187
-
-# consul
-database_consul_image: hashicorp/consul:1.19.0
-database_consul_workdir: "{{ app_base_dir }}/database/consul"
-database_consul_datadir: "{{ database_consul_workdir }}/data"
 
 # etcd
 database_etcd_workdir: "{{ app_base_dir }}/database/etcd"
@@ -67,7 +61,6 @@ database_pgbouncer_image: brainsam/pgbouncer:latest
 database_pgbouncer_auth_type: "md5"
 database_pgbouncer_auth_file: "/pgbouncer/users.txt"
 database_pgbouncer_exporter_image: spreaker/prometheus-pgbouncer-exporter:latest
-database_pgbouncer_exporter_port: 9127
 database_pgbouncer_pool_mode: "transaction"
 database_pgbouncer_max_client_conn: 1000
 database_pgbouncer_listen_addr: "0.0.0.0"
@@ -77,13 +70,23 @@ database_pgbouncer_postgres_pools:
   - name: "postgres"
     dbname: "postgres"
     password_md5: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          32653463303239343264343734333336613938626438613163633861396235343435613265643235
-          3263646538653665353833353633663837376637366261330a663037333334396161386166336537
-          30313766313039346632633834663437383033396362326133303963336263353934353661656361
-          3332643134623661310a393437313736306538666432633534363536616130623866326138626237
-          64333937663263393666666436626533613866363737616434653834383638326164376232316330
-          3961393439623935343234656137363164666136336163666365
+      $ANSIBLE_VAULT;1.1;AES256
+      38396436353930616534633132353561306335323236336264633737356463643664646665363263
+      6339376135323732393538356635613736386538623831350a303337633134316635656663363834
+      35366231653365646537333432613161386230343365306265666565366364633061613531613437
+      6335613734303936650a636637613961633736623233626432633330323131323235666338646334
+      32316166306136353130386336613137383262323062373962383032613261623534633236383131
+      3231623066633630626339313233306435663134353665353066
+  - name: "backend"
+    dbname: "backend"
+    password_md5: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      64336537666365643562386163626338653362616538643138303662396332633863386166363330
+      3935373836663034336366376463366236313536333665610a373231323735336336613931356631
+      35626433316133636134323738366336346433393737343630353931326561333430393362353231
+      6330343835613538630a386630313664646361633232616437363330363032653531616162356364
+      36343534353637306632363163333562333937373163376532343363333535633134396333663862
+      3332356666653465623634353037633261336366393134636464
 database_pgbouncer_exporter_include_databases:
   - name: postgres
 
@@ -95,13 +98,12 @@ database_haproxy_listen_port:
   stats: 9000
   postgres: 5432
   pgbouncer: 5433
-database_haproxy_exporter_port: 9101
 
 
 # keepalived
-# database_keepalived_image: keepalived:2.0.20
 # https://github.com/osixia/docker-keepalived
-database_keepalived_image: osixia/keepalived:stable
+# database_keepalived_image: osixia/keepalived:stable
+database_keepalived_image: lechiennn/keepalived:1.0
 database_keepalived_workdir: "{{ app_base_dir }}/database/keepalived"
 database_keepalived_vip_address: 100.99.98.97
 

@@ -1,0 +1,29 @@
+services:
+    cadvisor:
+        image: "{{ advisor_cadvisor_image }}"
+        container_name: cadvisor
+        privileged: true
+        volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:rw
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+        ports:
+            - "{{ ansible_host }}:{{ advisor_cadvisor_port }}:8080"
+
+    node_exporter:
+        image: "{{ advisor_node_exporter_image }}"
+        container_name: node-exporter
+        restart: always
+        volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        ports:
+            - "{{ ansible_host }}:{{ advisor_node_exporter_port }}:9100"
+        command:
+            - "--path.procfs=/host/proc"
+            - "--path.sysfs=/host/sys"
+            - "--path.rootfs=/rootfs"
+            - "--collector.filesystem.ignored-mount-points='^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'"
+    

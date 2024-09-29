@@ -1,0 +1,5 @@
+- name: Deploy monitoring
+  import_tasks: deploy.yaml
+  become: yes
+  tags:
+    - monitoring

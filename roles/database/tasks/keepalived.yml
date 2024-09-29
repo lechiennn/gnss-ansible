@@ -14,7 +14,7 @@
     group: "{{ app_user }}"
     backup: "{{ backup_env_files|default('false') }}"
   loop:
-    - { src: 'keepalived/keepalived.conf.test.j2', dest: 'keepalived.conf' }
+    - { src: 'keepalived/keepalived.conf.j2', dest: 'keepalived.conf' }
 
 - name: Copy file script check haproxy
   template:

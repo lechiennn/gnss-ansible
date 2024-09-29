@@ -10,6 +10,11 @@
     src: docker-compose.yml.j2
     dest: "{{ kafka_workdir }}/docker-compose.yml"
 
+- name: Copy exporter config to kafka workdir
+  template:
+    src: exporter_config.yaml.j2
+    dest: "{{ kafka_workdir }}/exporter_config.yaml"
+
 - name: Running zookeeper, kafka
   community.docker.docker_compose_v2:
     project_src: "{{ kafka_workdir }}"

@@ -7,3 +7,16 @@ app_user_password: !vault |
           3439643762343237360a326339306139393061666264326565386437313831633137653939333935
           6534
 app_base_dir: /home/gnss_app
+
+advisor_dir: "{{ app_base_dir }}/advisor"
+advisor_cadvisor_image: gcr.io/cadvisor/cadvisor:v0.49.1
+advisor_node_exporter_image: prom/node-exporter:latest
+
+
+# exporter port
+advisor_cadvisor_port: 8080
+advisor_node_exporter_port: 9100
+database_haproxy_exporter_port: 9101
+database_postgres_exporter_port: 9187
+database_pgbouncer_exporter_port: 9127
+kafka_exporter_port: 4888

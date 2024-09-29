@@ -1,0 +1,5 @@
+monitoring_dir: "{{ app_base_dir }}/monitoring"
+monitoring_prometheus_image: prom/prometheus:v2.54.1
+monitoring_prometheus_port: 9090
+monitoring_grafana_image: grafana/grafana:11.2.0-ubuntu
+monitoring_grafana_port: 5000

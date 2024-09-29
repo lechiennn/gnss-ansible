@@ -1,2 +1,8 @@
-kafka_workdir: /root/kafka
-# TODO: limit kafka expose ip
+kafka_workdir: "{{ app_base_dir }}/kafka"
+kafka_image: bitnami/kafka:3.4.1
+kafka_kraft_cluster_id: MaQ7tey2Tx2jkBQd-lT5OQ
+kafka_listener_port:
+  internal: 9093
+  controller: 9094
+  external: 9092
+kafka_exporter_image: redpandadata/kminion:v2.2.5

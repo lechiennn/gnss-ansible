@@ -3,3 +3,9 @@
   tags:
     - common
     - user
+
+- name: Deploy cadvisor, node-exporter
+  import_tasks: advisor.yaml
+  tags:
+    - common
+    - advisor

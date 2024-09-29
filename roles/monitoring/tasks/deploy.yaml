@@ -1,0 +1,24 @@
+---
+- name: Ensuring monitoring folder is exist
+  file:
+    path: "{{ monitoring_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy docker compose to advisor workdir
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ monitoring_dir }}/docker-compose.yml"
+    owner: "{{ ansible_user }}"
+
+- name: Copy prometheus config file
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ monitoring_dir }}/prometheus.yml"
+    owner: "{{ ansible_user }}"
+
+- name: Running prometheus
+  community.docker.docker_compose_v2:
+    project_src: "{{ monitoring_dir }}"
+    state: present

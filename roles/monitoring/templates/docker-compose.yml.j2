@@ -1,0 +1,22 @@
+volumes:
+  prometheus_db:
+    driver: local
+  grafana_db:
+    driver: local
+
+services:
+  prometheus:
+    image: {{ monitoring_prometheus_image }}
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_db:/prometheus
+    ports:
+      - "{{ monitoring_prometheus_port }}:9090"
+  
+  grafana:
+    image: {{ monitoring_grafana_image }}
+    volumes:
+      - grafana_db:/var/lib/grafana
+    ports:
+      - "{{ monitoring_grafana_port }}:3000"
+      
