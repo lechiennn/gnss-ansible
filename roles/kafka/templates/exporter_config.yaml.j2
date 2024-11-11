@@ -2,7 +2,7 @@ logger:
     level: info
 
 kafka:
-    brokers: ["{{ ansible_host }}:{{ kafka_listener_port.external }}"]
+    brokers: ["kafka:{{ kafka_listener_port.external }}"]
 
 exporter:
     namespace: ""

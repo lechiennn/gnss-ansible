@@ -7,16 +7,32 @@ volumes:
 services:
   prometheus:
     image: {{ monitoring_prometheus_image }}
+    container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alert.rules.yml:/etc/prometheus/alert.rules.yml
       - prometheus_db:/prometheus
     ports:
       - "{{ monitoring_prometheus_port }}:9090"
+    restart: always
+  
+  alertmanager:
+    image: {{ monitoring_alertmanager_image }}
+    container_name: alertmanager
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    ports:
+      - "{{ monitoring_alertmanager_port }}:9093"
+    restart: always
+    depends_on:
+      - prometheus
   
   grafana:
     image: {{ monitoring_grafana_image }}
+    container_name: grafana
     volumes:
       - grafana_db:/var/lib/grafana
     ports:
       - "{{ monitoring_grafana_port }}:3000"
+    restart: always
       

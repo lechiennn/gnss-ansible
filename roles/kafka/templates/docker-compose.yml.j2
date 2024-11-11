@@ -32,3 +32,4 @@ services:
       - ./exporter_config.yaml:/app/exporter_config.yaml
     environment:
       - CONFIG_FILEPATH=/app/exporter_config.yaml
+    restart: always

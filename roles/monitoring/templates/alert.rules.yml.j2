@@ -1,0 +1,11 @@
+groups:
+  - name: kafka_alerts
+    rules:
+      - alert: KafkaBrokerCountLow
+        expr: absent(kafka_broker_info)
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kafka Broker Down"
+          description: "The number of online Kafka brokers has been less than 3 for more than 5 minutes."
